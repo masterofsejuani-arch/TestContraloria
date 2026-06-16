@@ -664,44 +664,61 @@
 
   <!-- ============================================================
        AMAZON CONNECT — WEBCHAT WIDGET
-       ============================================================
-       Espacio reservado para el snippet de Amazon Connect.
-
-       INSTRUCCIONES:
-       1. Una vez aprobada la página, reemplaza el bloque marcado
-          con PEGAR_SNIPPET_AQUÍ por el código que te proporcionará
-          Amazon Connect al configurar tu widget de comunicaciones.
-       2. El snippet típicamente tiene esta forma:
-          (function(w, d, x, id){ ... })(window, document, 'amazon_connect', 'TU-WIDGET-ID');
-          amazon_connect('snippetId', 'TU-SNIPPET-ID');
-          amazon_connect('styles', { ... });
-          amazon_connect('customLaunchBehavior', { ... });
-       3. La función openChat() ya está lista para llamar al widget.
-          Solo asegúrate de que tu snippet exponga la función correcta
-          (ver comentario en openChat() abajo).
+       Widget oficial integrado. El botón flotante del widget se
+       oculta para usar exclusivamente el botón "Asistente virtual"
+       de la página mediante customLaunchBehavior.
        ============================================================ -->
   <script type="text/javascript">
-    /* ==============================================================
-       PEGAR_SNIPPET_AQUÍ
-       Sustituye este bloque completo con el snippet de Amazon Connect
-       ============================================================== */
+    /* --- Carga del script del widget y configuración base --- */
+    (function(w, d, x, id) {
+      s = d.createElement('script');
+      s.src = 'https://amazon-connect-0ea151c2cfe3.my.connect.aws/connectwidget/static/amazon-connect-chat-interface-client.js';
+      s.async = 1;
+      s.id = id;
+      d.getElementsByTagName('head')[0].appendChild(s);
+      w[x] = w[x] || function() { (w[x].ac = w[x].ac || []).push(arguments) };
+    })(window, document, 'amazon_connect', 'ee9c8b15-81a4-4440-954d-25a4cc4be21e');
 
-    /**
-     * openChat()
-     * Función que abre el widget de chat.
-     * Cuando pegues el snippet de Amazon Connect, ajusta el interior
-     * de esta función para llamar al método correcto del widget.
-     *
-     * Ejemplo con Amazon Connect Communications Widget:
-     *   amazon_connect('customLaunchBehavior', { ... programmaticLaunch ... });
-     *   → El callback launchCallback se vincula aquí al llamarla.
-     *
-     * Por ahora muestra un aviso de demostración.
-     */
+    /* --- Estilos del botón flotante nativo (se oculta, pero se define por si acaso) --- */
+    amazon_connect('styles', {
+      iconType: 'CHAT',
+      openChat:  { color: '#ffffff', backgroundColor: '#1b6b45' },
+      closeChat: { color: '#ffffff', backgroundColor: '#134d31' }
+    });
+
+    /* --- Snippet ID proporcionado por Amazon Connect --- */
+    amazon_connect('snippetId', 'QVFJREFIanZ1K2R4d01IRXN4SVdnVkQ5cDlveW1ZYnpmTzFSa1g1VElHN0ZrZzUvaWdGRWljN3dFWnVYU20yMnZGT1UxOEp0QUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNUllSaVN0ODRkVStsR2ZoZUFnRVFnQ3UyMW5TN0xjMUYzbjFhM2RBTEx6ZlFtc2J0aVEzYVBpN21xNldxOVdCNy9yUEN0K2VraTdzeWE1QlM6Ok11c21Kd0xmRllyeVZxdnRuaVg3SUFJM29KNnI5MDJSSzAvbExybVZTbHU2cEZGMG5Mb3doS0FnVmhzNFFReUl4dVMrU2xEdWdoVWUxd0NXNEZPNmNHU2NjZytQamhFVlovbExGSHlQVG9pQUFCM3dOZHl0VTBaYUpVeXNBNnJkQmhISFovT2ViUFNKS1FUcjJaR0d3UnNHNkRUWmVCaz0=');
+
+    /* --- Tipos de contenido soportados --- */
+    amazon_connect('supportedMessagingContentTypes', [
+      'text/plain',
+      'text/markdown',
+      'application/vnd.amazonaws.connect.message.interactive',
+      'application/vnd.amazonaws.connect.message.interactive.response'
+    ]);
+
+    /* --- Comportamiento de lanzamiento personalizado ---
+         Oculta el botón flotante nativo y conecta el widget al
+         botón "Asistente virtual" de la página mediante openChat().
+    --- */
+    var _chatLaunchCallback = null;
+
+    amazon_connect('customLaunchBehavior', {
+      alwaysHideWidgetButton: true,
+      skipIconButtonAndAutoLaunch: true,
+      programmaticLaunch: function(launchCallback) {
+        _chatLaunchCallback = launchCallback;
+      }
+    });
+
+    /* --- openChat(): llamada desde todos los botones de la página --- */
     function openChat() {
-      // TODO: reemplazar este bloque cuando se pegue el snippet real
-      // Ejemplo Amazon Connect: amazon_connect('...') ya estará disponible
-      alert('El asistente virtual estará disponible una vez integrado el snippet de Amazon Connect.');
+      if (typeof _chatLaunchCallback === 'function') {
+        _chatLaunchCallback();
+      } else {
+        /* El widget aún no terminó de cargar; reintenta en 800 ms */
+        setTimeout(openChat, 800);
+      }
     }
   </script>
 
