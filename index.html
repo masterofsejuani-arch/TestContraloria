@@ -697,27 +697,14 @@
       'application/vnd.amazonaws.connect.message.interactive.response'
     ]);
 
-    /* --- Comportamiento de lanzamiento personalizado ---
-         Oculta el botón flotante nativo y conecta el widget al
-         botón "Asistente virtual" de la página mediante openChat().
+    /* --- openChat(): llamada desde todos los botones de la página ---
+         La burbuja nativa de Amazon Connect aparece en la esquina
+         inferior derecha de forma automática. Los botones de la página
+         también la abren usando el comando Messenger#open.
     --- */
-    var _chatLaunchCallback = null;
-
-    amazon_connect('customLaunchBehavior', {
-      alwaysHideWidgetButton: true,
-      skipIconButtonAndAutoLaunch: true,
-      programmaticLaunch: function(launchCallback) {
-        _chatLaunchCallback = launchCallback;
-      }
-    });
-
-    /* --- openChat(): llamada desde todos los botones de la página --- */
     function openChat() {
-      if (typeof _chatLaunchCallback === 'function') {
-        _chatLaunchCallback();
-      } else {
-        /* El widget aún no terminó de cargar; reintenta en 800 ms */
-        setTimeout(openChat, 800);
+      if (typeof amazon_connect === 'function') {
+        amazon_connect('open');
       }
     }
   </script>
